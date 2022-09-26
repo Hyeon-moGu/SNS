@@ -19,6 +19,7 @@ public class UserJoinResponse {
                 user.getUsername(),
                 user.getUserRole()
         );
+
     }
 
 }
