@@ -52,8 +52,10 @@ const Transition = React.forwardRef(function Transition(
 });
 
 function Cover() {
-  const [userName, setUserName] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
   const [open, setOpen] = React.useState(false);
   const [dialogTitle, setDialogTitle] = React.useState('');
   const [dialogMessage, setDialogMessage] = React.useState('');
@@ -67,15 +69,19 @@ function Cover() {
   };
 
   const handleSignUp = (event) => {
-    console.log(userName);
+    console.log(username);
     console.log(password);
+    console.log(email);
+    console.log(nickname);
 
     axios({
       url: '/api/v1/users/join',
       method: 'POST',
       data: {
-        name: userName,
+        name: username,
         password: password,
+        email : email,
+        nickname : nickname
       },
     })
       .then((res) => {
@@ -116,9 +122,9 @@ function Cover() {
                 <MDBox component="form" role="form">
                   <MDBox mb={2}>
                     <MDInput
-                      type="userName"
+                      type="username"
                       label="User Name"
-                      onChange={(v) => setUserName(v.target.value)}
+                      onChange={(v) => setUsername(v.target.value)}
                       fullWidth
                     />
                   </MDBox>
@@ -128,6 +134,22 @@ function Cover() {
                       label="Password"
                       onChange={(v) => setPassword(v.target.value)}
                       fullWidth
+                    />
+                  </MDBox>
+                  <MDBox mb={2}>
+                    <MDInput
+                        type="email"
+                        label="Email"
+                        onChange={(v) => setEmail(v.target.value)}
+                        fullWidth
+                    />
+                  </MDBox>
+                  <MDBox mb={2}>
+                    <MDInput
+                        type="nickname"
+                        label="Nickname"
+                        onChange={(v) => setNickname(v.target.value)}
+                        fullWidth
                     />
                   </MDBox>
                   <MDBox mt={4} mb={1}>
