@@ -59,7 +59,7 @@ function PostDetail() {
   console.log(state);
   const [page, setPage] = useState(0);
   const [title, setTitle] = useState(state.title);
-  const [writer, setWriter] = useState(state.user.userName);
+  const [writer, setWriter] = useState(state.user.username);
   const [body, setBody] = useState(state.body);
   const [id, setId] = useState(state.id);
 
@@ -199,7 +199,7 @@ function PostDetail() {
                     </Grid>
                     <Grid item xs={6}>
                       <MDTypography variant="body2" textAlign="right">
-                        {comment.userName}
+                        {comment.username}
                       </MDTypography>
                     </Grid>
                   </Grid>
