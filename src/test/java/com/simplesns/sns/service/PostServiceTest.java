@@ -2,6 +2,8 @@ package com.simplesns.sns.service;
 
 import com.simplesns.sns.exception.ErrorCode;
 import com.simplesns.sns.exception.SnsApplicationException;
+import com.simplesns.sns.fixture.PostEntityFixture;
+import com.simplesns.sns.fixture.UserEntityFixture;
 import com.simplesns.sns.model.entity.PostEntity;
 import com.simplesns.sns.model.entity.UserEntity;
 import com.simplesns.sns.repository.PostEntityRepository;
@@ -30,9 +32,9 @@ public class PostServiceTest {
     @MockBean
     private UserEntityRepository userEntityRepository;
 
-    @DisplayName("포스트작성 정상 작동")
+    @DisplayName("포스트 작성 정상 작동")
     @Test
-    void givenNothing_whenCreatePost_thenSuccessPost() throws Exception {
+    void givenNothing_whenRequestCreatePost_thenCreatePost() throws Exception {
         // Given
         String title = "title";
         String body = "body";
@@ -47,7 +49,7 @@ public class PostServiceTest {
 
     @DisplayName("요청한 유저가 존재하지 않아 포스트작성 실패")
     @Test
-    void givenNothing_whenCreatePostNoneUser_thenReturnError() throws Exception {
+    void givenNothing_whenRequestCreatePostNoneUser_thenReturnError() throws Exception {
         // Given
         String title = "title";
         String body = "body";
@@ -59,6 +61,66 @@ public class PostServiceTest {
 
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.create(title,body,username));
         Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
+    }
+
+    @DisplayName("포스트 수정 정상 작동")
+    @Test
+    void givenNothing_whenRequestModifyPost_thenReturnOk() throws Exception {
+        // Given
+        String title = "title";
+        String body = "body";
+        String username = "username";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(username,postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        // When & Then
+        when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+        when(postEntityRepository.saveAndFlush(any())).thenReturn(postEntity);
+
+        Assertions.assertDoesNotThrow(() -> postService.modify(title,body,username, postId));
+    }
+
+    @DisplayName("포스트가 존재하지 않아 포스트수정 실패")
+    @Test
+    void givenNothing_whenRequestModifyNonePost_thenReturnError() throws Exception {
+        // Given
+        String title = "title";
+        String body = "body";
+        String username = "username";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(username,postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        // When & Then
+        when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.modify(title,body,username, postId));
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+    }
+
+    @DisplayName("포스트 수정 권한이 없어 포스트수정 실패")
+    @Test
+    void givenNothing_whenRequestModifyUnauthorized_thenReturnError() throws Exception {
+        // Given
+        String title = "title";
+        String body = "body";
+        String username = "username";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(username,postId, 1);
+        UserEntity writer = UserEntityFixture.get("username1", "password1", 2);
+
+        // When & Then
+        when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(writer));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.modify(title,body,username, postId));
+        Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
     }
 
 }
