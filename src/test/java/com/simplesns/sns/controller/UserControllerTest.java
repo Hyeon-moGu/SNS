@@ -39,7 +39,7 @@ public class UserControllerTest {
 
     @DisplayName("회원가입 - 성공")
     @Test
-    public void givenSignup_whenTrySignup_thenSuccessSignup() throws Exception{
+    public void givenNothing_whenRequestSignup_thenSuccessSignup() throws Exception{
         // Given
             String username = "username";
             String password = "password";
@@ -56,9 +56,9 @@ public class UserControllerTest {
                     .andExpect(status().isOk());
         }
 
-    @DisplayName("회원가입 - Username 중복으로 에러반환")
+    @DisplayName("회원가입 - 실패 (Username 중복으로 에러반환)")
     @Test
-    public void givenSignup_whenTrySignup_thenReturnError() throws Exception{
+    public void givenNothing_whenRequestSignup_thenReturnError() throws Exception{
         // Given
             String username = "username";
             String password = "password";
@@ -77,7 +77,7 @@ public class UserControllerTest {
 
     @DisplayName("로그인 - 성공")
     @Test
-    public void givenUsernameAndPassword_whenTryLogin_thenSuccess() throws Exception{
+    public void givenNothing_whenRequestLogin_thenSuccessLogin() throws Exception{
         // Given
         String username = "username";
         String password = "password";
@@ -94,7 +94,7 @@ public class UserControllerTest {
 
     @DisplayName("로그인 - 실패 (회원가입이 되지 않은 username 이므로 에러 반환)")
     @Test
-    public void givenNoneUsernameAndPassword_whenTryLogin_thenError() throws Exception {
+    public void givenNoneUsername_whenRequestLogin_thenError() throws Exception {
         // Given
         String username = "username";
         String password = "password";
@@ -111,7 +111,7 @@ public class UserControllerTest {
 
     @DisplayName("로그인 - 실패 (틀린 password 입력하여 에러 반환)")
     @Test
-    public void givenUsernameAndWrongPassword_whenTryLogin_thenError() throws Exception {
+    public void givenWrongPassword_whenRequestLogin_thenError() throws Exception {
         // Given
         String username = "username";
         String password = "password";

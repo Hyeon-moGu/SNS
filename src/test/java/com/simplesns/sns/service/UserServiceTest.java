@@ -33,13 +33,14 @@ public class UserServiceTest {
 
     @DisplayName("회원가입 정상 작동")
     @Test
-    void givenSignUp_whenTrySignUp_thenSignUpSuccess() {
+    void givenNothing_whenRequestSignUp_thenSuccessSignUp() {
+        //Given
         String username = "username";
         String password = "password";
         String email = "email";
         String nickname = "nickname";
 
-        // mocking
+        // When & Then
         when(userEntityRepository.findByUsername(username)).thenReturn(Optional.empty());
         when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(username, password));
@@ -49,7 +50,8 @@ public class UserServiceTest {
 
     @DisplayName("Username 중복으로 회원가입 실패")
     @Test
-    void givenSignUp_whenOverlapUsername_thenSignUpFailure() {
+    void givenNothing_whenRequestSignUpOverlapUsername_thenFailureSignUp() {
+        // Given
         String username = "username";
         String password = "password";
         String email = "email";
@@ -57,7 +59,7 @@ public class UserServiceTest {
 
         UserEntity fixture = UserEntityFixture.get(username, password);
 
-        // mocking
+        // When & Then
         when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(fixture));
         when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
@@ -68,42 +70,45 @@ public class UserServiceTest {
 
     @DisplayName("로그인 정상 작동")
     @Test
-    void givenUsernameAndPassword_whenTryLogin_thenLoginSuccess() {
+    void givenNothing_whenRequestLogin_thenSuccessLogin() {
+        // Given
         String username = "username";
         String password = "password";
 
         UserEntity fixture = UserEntityFixture.get(username, password);
 
-        // mocking
+        // When & Then
         when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(fixture));
         when(encoder.matches(password, fixture.getPassword())).thenReturn(true);
 
         Assertions.assertDoesNotThrow(() -> userService.login(username, password));
     }
 
-    @DisplayName("로그인시 username으로 회원가입한 유저가 없는 경우 에러반환")
+    @DisplayName("로그인시 없는 username으로 시도하는 경우 에러반환")
     @Test
-    void givenUsernameAndPassword_whenNoneUsernameLogin_thenReturnError() {
+    void givenNothing_whenRequestLoginNoneUsername_thenReturnError() {
+        // Given
         String username = "username";
         String password = "password";
 
-        // mocking
+        // When & Then
         when(userEntityRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(username, password));
         Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
     }
 
-    @DisplayName("로그인시 password가 틀린 경우 에러반환")
+    @DisplayName("로그인시 틀린 password로 시도하는 경우 에러반환")
     @Test
-    void givenUsernameAndPassword_whenWrongPasswordLogin_thenReturnError() {
+    void givenNothing_whenRequestLoginWrongPassword_thenReturnError() {
+        // Given
         String username = "username";
         String password = "password";
         String wrongPassword = "wrongPassword";
 
         UserEntity fixture = UserEntityFixture.get(username, password);
 
-        // mocking
+        // When & Then
         when(userEntityRepository.findByUsername(username)).thenReturn(Optional.of(fixture));
 
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(username, wrongPassword));
