@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -192,6 +193,58 @@ public class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("피드목록 요청")
+    @Test
+    @WithMockUser
+    void givenNothing_whenRequestFeedList_thenReturnSuccess() throws Exception{
+        when(postService.list(any())).thenReturn(Page.empty());
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("피드목록 요청 - 실패 (로그인을 하지 않음)")
+    @Test
+    @WithAnonymousUser
+    void givenNothing_whenRequestFeedList_thenReturnError() throws Exception{
+        when(postService.list(any())).thenReturn(Page.empty());
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @DisplayName("나의 피드목록 요청")
+    @Test
+    @WithMockUser
+    void givenNothing_whenRequestMyFeedList_thenReturnSuccess() throws Exception{
+        when(postService.my(any(), any())).thenReturn(Page.empty());
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("나의 피드목록 요청 - 실패 (로그인을 하지 않음)")
+    @Test
+    @WithAnonymousUser
+    void givenNothing_whenRequestMyFeedList_thenReturnError() throws Exception{
+        when(postService.my(any(), any())).thenReturn(Page.empty());
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
 
