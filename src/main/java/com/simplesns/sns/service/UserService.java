@@ -2,12 +2,16 @@ package com.simplesns.sns.service;
 
 import com.simplesns.sns.exception.ErrorCode;
 import com.simplesns.sns.exception.SnsApplicationException;
+import com.simplesns.sns.model.Alarm;
 import com.simplesns.sns.model.User;
 import com.simplesns.sns.model.entity.UserEntity;
+import com.simplesns.sns.repository.AlarmEntityRepository;
 import com.simplesns.sns.repository.UserEntityRepository;
 import com.simplesns.sns.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserEntityRepository userEntityRepository;
+    private final AlarmEntityRepository alarmEntityRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${jwt.secret-key}")
@@ -44,7 +49,6 @@ public class UserService {
         return User.fromEntity(userEntity);
     }
 
-    // TODO : implement
     public String login(String username, String password) {
         // 회원가입 여부 확인
         UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
@@ -56,8 +60,12 @@ public class UserService {
         
         // 토큰 생성
         String token = JwtTokenUtils.generateToken(username, secretKey, expiredTimeMs);
-
         return token;
+    }
+
+    public Page<Alarm> alarmList(String username, Pageable pageable) {
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+        return alarmEntityRepository.findAllByUser(userEntity, pageable).map(Alarm::fromEntity);
     }
 
 }
