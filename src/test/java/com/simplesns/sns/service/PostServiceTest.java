@@ -4,6 +4,7 @@ import com.simplesns.sns.exception.ErrorCode;
 import com.simplesns.sns.exception.SnsApplicationException;
 import com.simplesns.sns.fixture.PostEntityFixture;
 import com.simplesns.sns.fixture.UserEntityFixture;
+import com.simplesns.sns.model.User;
 import com.simplesns.sns.model.entity.PostEntity;
 import com.simplesns.sns.model.entity.UserEntity;
 import com.simplesns.sns.repository.PostEntityRepository;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -34,7 +37,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트 작성 정상 작동")
     @Test
-    void givenNothing_whenRequestCreatePost_thenCreatePost() throws Exception {
+    void givenNothing_whenRequestCreatePost_thenCreatePost() {
         // Given
         String title = "title";
         String body = "body";
@@ -49,7 +52,7 @@ public class PostServiceTest {
 
     @DisplayName("요청한 유저가 존재하지 않아 포스트작성 실패")
     @Test
-    void givenNothing_whenRequestCreatePostNoneUser_thenReturnError() throws Exception {
+    void givenNothing_whenRequestCreatePostNoneUser_thenReturnError() {
         // Given
         String title = "title";
         String body = "body";
@@ -65,7 +68,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트 수정 정상 작동")
     @Test
-    void givenNothing_whenRequestModifyPost_thenReturnOk() throws Exception {
+    void givenNothing_whenRequestModifyPost_thenReturnOk() {
         // Given
         String title = "title";
         String body = "body";
@@ -85,7 +88,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트가 존재하지 않아 포스트수정 실패")
     @Test
-    void givenNothing_whenRequestModifyNonePost_thenReturnError() throws Exception {
+    void givenNothing_whenRequestModifyNonePost_thenReturnError() {
         // Given
         String title = "title";
         String body = "body";
@@ -105,7 +108,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트 수정 권한이 없어 포스트수정 실패")
     @Test
-    void givenNothing_whenRequestModifyUnauthorized_thenReturnError() throws Exception {
+    void givenNothing_whenRequestModifyUnauthorized_thenReturnError() {
         // Given
         String title = "title";
         String body = "body";
@@ -125,7 +128,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트 삭제 정상 작동")
     @Test
-    void givenNothing_whenRequestDeletePost_thenReturnOk() throws Exception {
+    void givenNothing_whenRequestDeletePost_thenReturnOk() {
         // Given
         String username = "username";
         Integer postId = 1;
@@ -142,7 +145,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트가 존재하지 않아 포스트삭제 실패")
     @Test
-    void givenNothing_whenRequestDeleteNonePost_thenReturnError() throws Exception {
+    void givenNothing_whenRequestDeleteNonePost_thenReturnError() {
         // Given
         String username = "username";
         Integer postId = 1;
@@ -160,7 +163,7 @@ public class PostServiceTest {
 
     @DisplayName("포스트 삭제 권한이 없어 포스트삭제 실패")
     @Test
-    void givenNothing_whenRequestDeleteUnauthorized_thenReturnError() throws Exception {
+    void givenNothing_whenRequestDeleteUnauthorized_thenReturnError() {
         // Given
         String username = "username";
         Integer postId = 1;
@@ -174,6 +177,28 @@ public class PostServiceTest {
 
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.delete(username, 1));
         Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+    }
+
+    @DisplayName("피드목록 요청 정상 작동")
+    @Test
+    void givenNothing_whenRequestFeedList_thenReturnOk() {
+        Pageable pageable = mock(Pageable.class);
+
+        // When & Then
+        when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
+        Assertions.assertDoesNotThrow(() -> postService.list(pageable));
+    }
+
+    @DisplayName("나의 피드목록 요청 정상 작동")
+    @Test
+    void givenNothing_whenRequestMyFeedList_thenReturnOk() {
+        Pageable pageable = mock(Pageable.class);
+        UserEntity user = mock(UserEntity.class);
+
+        // When & Then
+        when(userEntityRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(postEntityRepository.findAllByUser(user,pageable)).thenReturn(Page.empty());
+        Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
     }
 
 

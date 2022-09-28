@@ -8,6 +8,8 @@ import com.simplesns.sns.model.entity.UserEntity;
 import com.simplesns.sns.repository.PostEntityRepository;
 import com.simplesns.sns.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +63,17 @@ public class PostService {
         }
 
         postEntityRepository.delete(postEntity);
-
     }
+
+    public Page<Post> list(Pageable pageable){
+        return postEntityRepository.findAll(pageable).map(Post::fromEntity);
+    }
+
+    public Page<Post> my(String username, Pageable pageable){
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() ->
+                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+
+        return postEntityRepository.findAllByUser(userEntity, pageable).map(Post::fromEntity);
+    }
+
 }
